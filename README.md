@@ -1,2 +1,2 @@
 # nbpayara
-Call EJBs, cosume JMS in NetBeans platform applications
+Call EJBs, consume JMS in NetBeans platform applications
