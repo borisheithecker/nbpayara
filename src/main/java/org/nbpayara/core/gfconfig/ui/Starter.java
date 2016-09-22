@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.nbpayara.core.gfconfig.uix;
+package org.nbpayara.core.gfconfig.ui;
 
 import com.sun.enterprise.glassfish.bootstrap.Constants;
 import org.glassfish.embeddable.BootstrapProperties;

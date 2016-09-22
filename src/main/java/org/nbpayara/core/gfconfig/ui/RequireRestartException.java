@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.nbpayara.core.gfconfig.uix;
+package org.nbpayara.core.gfconfig.ui;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
-import org.nbpayara.core.gfconfig.uix.Listener.InstanceImpl;
+import org.nbpayara.core.gfconfig.ui.Listener.InstanceImpl;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;

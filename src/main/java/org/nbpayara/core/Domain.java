@@ -7,7 +7,7 @@ package org.nbpayara.core;
 
 import java.io.IOException;
 import java.util.Properties;
-import org.nbpayara.core.gfconfig.uix.Listener;
+import org.nbpayara.core.gfconfig.ui.Listener;
 
 /**
  *

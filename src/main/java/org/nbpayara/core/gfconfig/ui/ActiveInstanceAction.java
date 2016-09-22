@@ -1,4 +1,4 @@
-package org.nbpayara.core.gfconfig.uix;
+package org.nbpayara.core.gfconfig.ui;
 
 import java.awt.Component;
 import java.awt.Dimension;
