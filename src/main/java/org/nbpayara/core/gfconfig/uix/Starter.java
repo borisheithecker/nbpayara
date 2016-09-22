@@ -3,16 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.nbpayara.core.ui;
+package org.nbpayara.core.gfconfig.uix;
 
 import com.sun.enterprise.glassfish.bootstrap.Constants;
 import org.glassfish.embeddable.BootstrapProperties;
 import org.glassfish.embeddable.GlassFishException;
 import org.glassfish.embeddable.GlassFishRuntime;
+import org.nbpayara.core.gfconfig.NbGlassFishRuntimeBuilder;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
-import org.thespheres.betula.glassfish.Domain;
-import org.thespheres.betula.glassfish.config.StaticGlassFishRuntimeBuilder;
 
 /**
  *
@@ -24,11 +23,7 @@ public class Starter implements Runnable {
     @Override
     public void run() {
         try {
-            InstanceList.init();
-            String p1 = System.getProperty(Domain.INSTANCE_ROOT_PROP_NAME);
             GlassFishRuntime gfRuntime = createRuntime();
-            String p2 = System.getProperty(Domain.INSTANCE_ROOT_PROP_NAME);
-//            System.clearProperty(Domain.INSTANCE_ROOT_PROP_NAME);
             Listener.create(gfRuntime);
         } catch (GlassFishException ex) {
             throw new IllegalStateException(ex);
@@ -37,11 +32,9 @@ public class Starter implements Runnable {
 
     private static GlassFishRuntime createRuntime() throws GlassFishException {
         BootstrapProperties bsProps = new BootstrapProperties();
-        bsProps.setProperty(Constants.BUILDER_NAME_PROPERTY, StaticGlassFishRuntimeBuilder.class.getName());
-        //        bsProps.setInstallRoot(System.getEnv("GF_INSTALLATION"));
+        bsProps.setProperty(Constants.BUILDER_NAME_PROPERTY, NbGlassFishRuntimeBuilder.class.getName());
         ClassLoader sysCl = Lookup.getDefault().lookup(ClassLoader.class);
-        GlassFishRuntime gfRuntime = GlassFishRuntime.bootstrap(bsProps, sysCl); //GlassFishRuntime.bootstrap(bsProps);
-        return gfRuntime;
+        return GlassFishRuntime.bootstrap(bsProps, sysCl); 
     }
 
 }

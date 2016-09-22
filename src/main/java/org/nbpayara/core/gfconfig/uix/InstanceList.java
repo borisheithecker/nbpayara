@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.nbpayara.core.ui;
+package org.nbpayara.core.gfconfig.uix;
 
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import org.nbpayara.core.Domain;
+import org.nbpayara.core.ProviderInfo;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.NbPreferences;
-import org.thespheres.betula.glassfish.Domain;
-import org.thespheres.betula.services.ProviderInfo;
 
 /**
  *
@@ -28,13 +28,13 @@ import org.thespheres.betula.services.ProviderInfo;
  */
 final class InstanceList implements LookupListener {
 
-    final static String SELECTED_DOMAIN = "org.thespheres.betula.glassfish.selected.domain";
-    final static String STOPPED_DOMAINS = "org.thespheres.betula.glassfish.stopped.domains";
-    final static String LISTED_DOMAINS = "org.thespheres.betula.glassfish.listed.domains";
+    final static String SELECTED_DOMAIN = "nbpayara.selected.domain";
+    final static String STOPPED_DOMAINS = "nbpayara.stopped.domains";
+    final static String LISTED_DOMAINS = "nbpayara.listed.domains";
     private final static InstanceList INSTANCE = new InstanceList();
     private final Lookup.Result<Domain> result;
     private final VetoableChangeSupport propertyChangeSupport = new VetoableChangeSupport(this);
-    private final ArrayList<ProviderInfo> domains = new ArrayList<>();//Comparator
+    private final ArrayList<ProviderInfo> domains = new ArrayList<>();
 
     @SuppressWarnings("LeakingThisInConstructor")
     private InstanceList() {
@@ -47,8 +47,8 @@ final class InstanceList implements LookupListener {
         return INSTANCE;
     }
 
-    static void init() {
-//        INSTANCE.initImpl();
+    static Domain findDomain(ProviderInfo provider) {
+        return INSTANCE.findDomainImpl(provider);
     }
 
     private synchronized void initImpl() {
@@ -56,13 +56,15 @@ final class InstanceList implements LookupListener {
         Set<String> stopped = getStoppedDomains();
         List<Domain> toStop = new ArrayList<>();
         String selected = NbPreferences.forModule(getClass()).get(SELECTED_DOMAIN, null);
-        for (Domain d : result.allInstances()) {
-            ProviderInfo pi = d.getProviderInfo();
-            dd.add(pi);
-            if (!stopped.contains(pi.getURL()) && !(selected != null && selected.equals(pi.getURL()))) {
-                toStop.add(d);
-            }
-        }
+        result.allInstances().stream()
+                .forEach(d -> {
+                    ProviderInfo pi = d.getProviderInfo();
+                    dd.add(pi);
+                    if (!stopped.contains(pi.getURL())
+                            && !(selected != null && selected.equals(pi.getURL()))) {
+                        toStop.add(d);
+                    }
+                });
         synchronized (domains) {
             domains.clear();
             domains.addAll(dd);
@@ -166,10 +168,6 @@ final class InstanceList implements LookupListener {
             propertyChangeSupport.fireVetoableChange(LISTED_DOMAINS, null, null);
         } catch (PropertyVetoException ex) {
         }
-    }
-
-    static Domain findDomain(ProviderInfo provider) {
-        return INSTANCE.findDomainImpl(provider);
     }
 
     private class StopDomain implements Runnable {

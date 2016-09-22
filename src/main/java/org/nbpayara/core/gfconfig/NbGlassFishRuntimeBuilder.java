@@ -71,7 +71,7 @@ import org.openide.util.lookup.ServiceProvider;
  * @author bhavanishankar@dev.java.net
  */
 @ServiceProvider(service = RuntimeBuilder.class)
-public class StaticGlassFishRuntimeBuilder implements RuntimeBuilder {
+public class NbGlassFishRuntimeBuilder implements RuntimeBuilder {
 
     private static Logger logger = Util.getLogger();
     private static final String JAR_EXT = ".jar";

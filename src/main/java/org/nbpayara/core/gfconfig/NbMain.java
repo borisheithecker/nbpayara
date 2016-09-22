@@ -41,7 +41,6 @@ import org.openide.util.NbBundle.Messages;
 @Messages({"GFMain.createServiceLocator.setIIOPPort=Allocated port {0} for iiop-listener with id {1}"})
 public class NbMain extends EmbeddedMain {
 
-//    private ServiceLocator locator;
     public NbMain(ClassLoader cl) {
         super(cl);
     }
@@ -49,11 +48,11 @@ public class NbMain extends EmbeddedMain {
     @Override
     public ServiceLocator createServiceLocator(ModulesRegistry mr, StartupContext context, List<PopulatorPostProcessor> postProcessors, DescriptorFileFinder descriptorFileFinder) throws BootException {
 
-        final ServiceLocator locator = super.createServiceLocator(mr, context, postProcessors, descriptorFileFinder); //To change body of generated methods, choose Tools | Templates.
-
+        final ServiceLocator locator = super.createServiceLocator(mr, context, postProcessors, descriptorFileFinder); 
+        
         DynamicConfigurationService dcs = locator.getService(DynamicConfigurationService.class);
         DynamicConfiguration config = dcs.createDynamicConfiguration();
-        DescriptorImpl retVal = BuilderHelper.link(IdM.class).to(IdentityManagement.class).in(Singleton.class).ofRank(Integer.MAX_VALUE).build();
+        DescriptorImpl retVal = BuilderHelper.link(NbIdentityManagement.class).to(IdentityManagement.class).in(Singleton.class).ofRank(Integer.MAX_VALUE).build();
         config.bind(retVal);
         config.commit();
 

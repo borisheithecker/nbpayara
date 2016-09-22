@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.nbpayara.core.ui;
+package org.nbpayara.core.gfconfig.uix;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyVetoException;
@@ -12,24 +12,30 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Icon;
+import org.glassfish.embeddable.GlassFish;
+import org.glassfish.embeddable.GlassFishException;
+import org.glassfish.embeddable.GlassFishProperties;
 import org.glassfish.embeddable.GlassFishRuntime;
 import org.nbpayara.core.Domain;
-import org.openide.util.NbBundle.Messages;
+import org.nbpayara.core.ProviderInfo;
+import org.openide.LifecycleManager;
+import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 /**
  *
  * @author boris.heithecker
  */
-@Messages({"Listener.StartDomain.exception=Der Mandant „{0}“ konnte nicht gestartet werden. Grund: {1}",
-    "Listener.StartDomain.exception.title=Konfigurationsfehler des Mandanten."})
+@NbBundle.Messages({"Listener.StartDomain.exception=Domain „{0}“ could not be started. Reason: {1}",
+    "Listener.StartDomain.exception.title=Domain misconfigured."})
 public class Listener implements VetoableChangeListener {
 
     private static final Listener INSTANCE = new Listener();
     private GlassFishRuntime runtime;
     private InstanceImpl current;
     final static RequestProcessor RP = new RequestProcessor(Listener.class);
-//    private ProviderInfo toStart;
     private boolean starting;
     private InstanceImpl stopped;
 
@@ -76,7 +82,6 @@ public class Listener implements VetoableChangeListener {
                     throw new RequireRestartException("Must restart platform after shutdown of previous glassfish domain.", evt, current);
                 } else if (current == null && newInstance != null) {
                     try {
-                        KeyStores.init();
                     } catch (IllegalStateException illex) {
                         PropertyVetoException th = new PropertyVetoException("KeyStores.init threw an IllegalStateException", evt);
                         th.initCause(illex);
@@ -84,12 +89,9 @@ public class Listener implements VetoableChangeListener {
                     }
                     RP.post(new StartDomain(newInstance));
                 } else if (current != null) {
-//                    ProviderInfo nv = (ProviderInfo) evt.getNewValue();
-//                    if (nv == null || (toStart != null && toStart.equals(nv))) {
                     if (newInstance == null) {
                         current.stop();
                     } else {
-//                        toStart = (ProviderInfo) evt.getNewValue();
                         throw new RequireRestartException("Must restart platform after shutdown of previous glassfish domain.", evt, current);
                     }
                 }
@@ -110,19 +112,15 @@ public class Listener implements VetoableChangeListener {
         }
     }
 
-    //TODO: redundant? See InstanceList.setSelectedDomainImpl
-    private void runAfterStop() {
-        //Enque restart here
-//        if (toStart != null) {
-//            ProviderInfo pi = toStart;
-//            this.toStart = null;
-//            if (pi != null) {
-//                try {
-//                    InstanceList.getInstance().setSelectedDomain(pi);
-//                } catch (PropertyVetoException ex) {
-//                }
-//            }
-//        }
+    @NbBundle.Messages({"ModuleControlImpl.restartPlatform.exception.message=Could not restart the application."})
+    private static void requestRestart() throws RuntimeException, UnsupportedOperationException {
+        LifecycleManager lcm = Lookup.getDefault().lookup(LifecycleManager.class);
+        if (lcm != null) {
+            lcm.markForRestart();
+            lcm.exit();
+        }
+        final String msg = NbBundle.getMessage(Listener.class, "ModuleControlImpl.restartPlatform.exception.message");
+        throw new RuntimeException(msg);
     }
 
     private class StartDomain implements Runnable {
@@ -137,23 +135,15 @@ public class Listener implements VetoableChangeListener {
         @Override
         public void run() {
             try {
-                InstanceList.getInstance().updateStoppedDomains(domain.getName(), false);
+                InstanceList.getInstance().updateStoppedDomains(domain.getProviderInfo(), false);
                 GlassFish gf = runtime.newGlassFish(new GlassFishProperties(domain.getInstanceProperties()));
                 gf.start();
                 Listener.this.current = new InstanceImpl(gf, domain);
                 Listener.this.current.running = true;
                 Listener.this.starting = false;
                 current.notifyIn.post(() -> domain.instanceStarted(current));
-            } catch (GlassFishException ex) {
-                Logger.getLogger(Listener.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalStateException illex) {
-                Logger.getLogger(Listener.class.getCanonicalName()).log(LogLevel.INFO_WARNING, illex.getMessage(), illex);
-                Listener.this.starting = false;
-                Icon ic = ImageUtilities.loadImageIcon("org/thespheres/betula/ui/resources/exclamation-red-frame.png", true);
-                String title = NbBundle.getMessage(Listener.class, "Listener.StartDomain.exception.title");
-                String message = NbBundle.getMessage(Listener.class, "Listener.StartDomain.exception", domain.getProviderInfo().getDisplayName(), illex.getLocalizedMessage());
-                NotificationDisplayer.getDefault()
-                        .notify(title, ic, message, null, NotificationDisplayer.Priority.HIGH, NotificationDisplayer.Category.WARNING);
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
 
@@ -185,7 +175,7 @@ public class Listener implements VetoableChangeListener {
                 if (running) {
                     run();
                 }
-                ModuleControl.requestPlatformRestart();
+                Listener.RP.post(Listener::requestRestart, 0, Thread.MIN_PRIORITY);
             }, 0, Thread.NORM_PRIORITY);
         }
 
@@ -199,7 +189,6 @@ public class Listener implements VetoableChangeListener {
                 activeInstance.instanceStopped();
                 Listener.this.stopped = this;
                 InstanceList.getInstance().updateStoppedDomains(activeInstance.getProviderInfo(), true);
-                runAfterStop();
             } catch (GlassFishException ex) {
                 Logger.getLogger(InstanceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }

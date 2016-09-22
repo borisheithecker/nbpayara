@@ -1,4 +1,4 @@
-package org.nbpayara.core.ui;
+package org.nbpayara.core.gfconfig.uix;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -15,7 +15,6 @@ import java.beans.VetoableChangeListener;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
@@ -28,6 +27,7 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
+import org.nbpayara.core.ProviderInfo;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -35,12 +35,11 @@ import org.openide.awt.ActionRegistration;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
-import org.thespheres.betula.services.ProviderInfo;
-import org.thespheres.betula.ui.util.WideJXComboBox;
 
 /**
- * @author boris.heithecker, adapted from
- * org.netbeans.modules.project.ui.actions.ActiveConfigAction
+ * @author boris.heithecker
+ *
+ * UI adapted to org.netbeans.modules.project.ui.actions.ActiveConfigAction
  */
 @ActionID(id = "org.thespheres.betula.glassfish.startup.ActiveInstanceAction", category = "Project")
 @ActionRegistration(displayName = "#ActiveInstanceAction.label", lazy = false)
@@ -68,7 +67,7 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
         }
     };
     private static final DefaultComboBoxModel EMPTY_MODEL = new DefaultComboBoxModel();
-    private JXComboBox configListCombo;
+    private JXComboBox providerListCombo;
 
     @SuppressWarnings("LeakingThisInConstructor")
     public ActiveInstanceAction() {
@@ -79,18 +78,18 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
 
     private void initConfigListCombo() {
         assert EventQueue.isDispatchThread();
-        if (configListCombo != null) {
+        if (providerListCombo != null) {
             return;
         }
-        configListCombo = new WideJXComboBox();
-        configListCombo.addPopupMenuListener(new PopupMenuListener() {
+        providerListCombo = new WideJXComboBox();
+        providerListCombo.addPopupMenuListener(new PopupMenuListener() {
             private Component prevFocusOwner = null;
 
             public @Override
             void popupMenuWillBecomeVisible(PopupMenuEvent e) {
                 prevFocusOwner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-                configListCombo.setFocusable(true);
-                configListCombo.requestFocusInWindow();
+                providerListCombo.setFocusable(true);
+                providerListCombo.requestFocusInWindow();
             }
 
             public @Override
@@ -99,19 +98,19 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
                     prevFocusOwner.requestFocusInWindow();
                 }
                 prevFocusOwner = null;
-                configListCombo.setFocusable(false);
+                providerListCombo.setFocusable(false);
             }
 
             public @Override
             void popupMenuCanceled(PopupMenuEvent e) {
             }
         });
-        configListCombo.setToolTipText(org.openide.awt.Actions.cutAmpersand(getName()));
-        configListCombo.setFocusable(false);
-        configListCombo.setRenderer(new DefaultListRenderer(o -> o instanceof ProviderInfo ? ((ProviderInfo) o).getDisplayName() : " "));
-        configListCombo.addHighlighter(new ItalicHighlighter());
-        configListCombo.setEditable(false);
-        configurationsListChanged();
+        providerListCombo.setToolTipText(org.openide.awt.Actions.cutAmpersand(getName()));
+        providerListCombo.setFocusable(false);
+        providerListCombo.setRenderer(new DefaultListRenderer(o -> o instanceof ProviderInfo ? ((ProviderInfo) o).getDisplayName() : " "));
+        providerListCombo.addHighlighter(new ItalicHighlighter());
+        providerListCombo.setEditable(false);
+        providerListChanged();
         InstanceList.getInstance().addVetoableChangeListener(this);
     }
 
@@ -119,41 +118,30 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
         return InstanceList.getInstance().getSelectedDomain();
     }
 
-    private void configurationsListChanged() {
-        List<ProviderInfo> configs = Arrays.stream(InstanceList.getInstance().getDomains())
-                .collect(Collectors.toList());
-        if (configs == null || configs.isEmpty()) {
-            EventQueue.invokeLater(() -> {
-                configListCombo.setModel(EMPTY_MODEL);
-                configListCombo.setEnabled(false); // possibly redundant, but just in case
-            });
+    private void providerListChanged() {
+        ProviderInfo[] arr = InstanceList.getInstance().getDomains();
+        if (arr.length == 0) {
+            EventQueue.invokeLater(() -> providerListCombo.setModel(EMPTY_MODEL));
         } else {
-            configs.add(0, NULL);
-            final DefaultComboBoxModel model = new ComboModel(configs.toArray());
-            EventQueue.invokeLater(() -> {
-                configListCombo.setModel(model);
-                configListCombo.setEnabled(true);
-            });
+            List<ProviderInfo> l = Arrays.asList(arr);
+            l.add(0, NULL);
+            final DefaultComboBoxModel model = new Model(l);
+            EventQueue.invokeLater(() -> providerListCombo.setModel(model));
         }
-        activeConfigurationChanged(getActiveInstance());
+        activeProviderChanged(getActiveInstance());
     }
 
-    private void activeConfigurationChanged(final ProviderInfo config) {
+    private void activeProviderChanged(final ProviderInfo provider) {
         EventQueue.invokeLater(() -> {
-//            listeningToCombo = false;
-            try {
-                configListCombo.setSelectedIndex(-1);
-                if (config != null) {
-                    ComboBoxModel m = configListCombo.getModel();
-                    for (int i = 0; i < m.getSize(); i++) {
-                        if (config.equals(m.getElementAt(i))) {
-                            configListCombo.setSelectedIndex(i);
-                            break;
-                        }
+            providerListCombo.setSelectedIndex(-1);
+            if (provider != null) {
+                ComboBoxModel m = providerListCombo.getModel();
+                for (int i = 0; i < m.getSize(); i++) {
+                    if (provider.equals(m.getElementAt(i))) {
+                        providerListCombo.setSelectedIndex(i);
+                        break;
                     }
                 }
-            } finally {
-//                listeningToCombo = true;
             }
         });
     }
@@ -162,17 +150,17 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
     public void vetoableChange(PropertyChangeEvent evt) throws PropertyVetoException {
         switch (evt.getPropertyName()) {
             case InstanceList.SELECTED_DOMAIN:
-                activeConfigurationChanged((ProviderInfo) evt.getNewValue());
+                activeProviderChanged((ProviderInfo) evt.getNewValue());
                 break;
             case InstanceList.LISTED_DOMAINS:
-                configurationsListChanged();
+                providerListChanged();
                 break;
         }
     }
 
     @Override
     public HelpCtx getHelpCtx() {
-        return new HelpCtx("org.thespheres.betula.glassfish.startup.ActiveInstanceAction");
+        return HelpCtx.DEFAULT_HELP;
     }
 
     @Override
@@ -185,6 +173,7 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
         Toolkit.getDefaultToolkit().beep();
     }
 
+    //See org.netbeans.modules.project.ui.actions.ActiveConfigAction
     @Override
     public Component getToolbarPresenter() {
         // Do not return combo box directly; looks bad.
@@ -197,15 +186,16 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
         // XXX top inset of 2 looks better w/ small toolbar, but 1 seems to look better for large toolbar (the default):
         JLabel label = new JLabel(NbBundle.getMessage(ActiveInstanceAction.class, "ActiveInstanceAction.label"));
         label.setBorder(new EmptyBorder(0, 2, 0, 10));
-        label.setLabelFor(configListCombo);
+        label.setLabelFor(providerListCombo);
         toolbarPanel.add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 6, 1, 0), 0, 0));
-        toolbarPanel.add(configListCombo, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 0, 1, 5), 0, 0));
+        toolbarPanel.add(providerListCombo, new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 0, 1, 5), 0, 0));
         return toolbarPanel;
     }
-    
+
     private class ItalicHighlighter extends FontHighlighter implements HighlightPredicate {
 
-        @SuppressWarnings("OverridableMethodCallInConstructor")
+        @SuppressWarnings({"OverridableMethodCallInConstructor",
+            "LeakingThisInConstructor"})
         private ItalicHighlighter() {
             super();
             setHighlightPredicate(this);
@@ -224,10 +214,10 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
 
     }
 
-    private class ComboModel extends DefaultComboBoxModel {
+    private class Model extends DefaultComboBoxModel<ProviderInfo> {
 
-        private ComboModel(Object[] arr) {
-            super(arr);
+        private Model(List<ProviderInfo> l) {
+            super(l.toArray(new ProviderInfo[l.size()]));
         }
 
         @Override

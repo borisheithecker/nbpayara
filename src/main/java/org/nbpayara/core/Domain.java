@@ -7,7 +7,7 @@ package org.nbpayara.core;
 
 import java.io.IOException;
 import java.util.Properties;
-import org.nbpayara.core.ui.Listener;
+import org.nbpayara.core.gfconfig.uix.Listener;
 
 /**
  *
@@ -25,7 +25,7 @@ public interface Domain {
 
     public void instanceStopped();
 
-    public String getName();
+    public ProviderInfo getProviderInfo();
 
     public static void ensureRunning(String providerUrl) throws IOException {
         Listener.ensureRunning(providerUrl);
