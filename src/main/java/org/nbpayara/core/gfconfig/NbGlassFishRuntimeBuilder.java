@@ -37,6 +37,9 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+/*
+* Adapted version of com.sun.enterprise.glassfish.bootstrap.StaticGlassFishRuntimeBuilder
+*/
 package org.nbpayara.core.gfconfig;
 
 import com.sun.enterprise.glassfish.bootstrap.ASMain;
@@ -68,7 +71,9 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
- * @author bhavanishankar@dev.java.net
+ * @author boris.heithecker
+ * 
+ * Adapted version of com.sun.enterprise.glassfish.bootstrap.StaticGlassFishRuntimeBuilder
  */
 @ServiceProvider(service = RuntimeBuilder.class)
 public class NbGlassFishRuntimeBuilder implements RuntimeBuilder {
@@ -87,16 +92,24 @@ public class NbGlassFishRuntimeBuilder implements RuntimeBuilder {
         }
         // Required to add moduleJarURLs to support 'java -jar modules/glassfish.jar case'
         List<URL> moduleJarURLs = getModuleJarURLs(installRoot);
+        
+        //Adapted portion
 //        ClassLoader cl = getClass().getClassLoader();
         ClassLoader cl = new DelegatingClassLoader(GlassFish.class.getClassLoader(), Lookup.getDefault().lookup(ClassLoader.class));
-//        ClassLoader cl = GlassFish.class.getClassLoader();
+//        end of adapted portion
+
+
         if (!moduleJarURLs.isEmpty()) {
 //            cl = new StaticClassLoader(getClass().getClassLoader(), moduleJarURLs);
             cl = new StaticClassLoader(cl, moduleJarURLs);
         }
 
         // Step 2. Setup the module subsystem.
+                //Adapted portion
         final NbMain main = new NbMain(cl); //new EmbeddedMain(cl);
+        //        end of adapted portion
+        
+        
         SingleHK2Factory.initialize(cl);
         final ModulesRegistry modulesRegistry = AbstractFactory.getInstance().createModulesRegistry();
         modulesRegistry.setParentClassLoader(cl);
@@ -124,10 +137,14 @@ public class NbGlassFishRuntimeBuilder implements RuntimeBuilder {
     private String findInstallRoot(BootstrapProperties props) {
         String installRootProp = props.getInstallRoot();
         if (installRootProp == null) {
+        
+            //Adapted portion
             //2 Zeilen von MainHelper
             File bootstrapFile = findBootstrapFile(); // glassfish/modules/glassfish.jar
             File installRoot = bootstrapFile.getParentFile().getParentFile(); // glassfish/
 //            File installRoot = MainHelper.findInstallRoot();
+        //        end of adapted portion
+        
             if (installRoot != null && isValidInstallRoot(installRoot.getAbsolutePath())) {
                 installRootProp = installRoot.getAbsolutePath();
             }

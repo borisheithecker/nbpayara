@@ -17,7 +17,7 @@ import org.glassfish.embeddable.GlassFishException;
 import org.glassfish.embeddable.GlassFishProperties;
 import org.glassfish.embeddable.GlassFishRuntime;
 import org.nbpayara.core.Domain;
-import org.nbpayara.core.ProviderInfo;
+import org.nbpayara.core.DomainInfo;
 import org.openide.LifecycleManager;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -77,7 +77,7 @@ public class Listener implements VetoableChangeListener {
                 if (starting) {
                     throw new PropertyVetoException("Already starting domain.", evt);
                 }
-                Domain newInstance = InstanceList.findDomain((ProviderInfo) evt.getNewValue());
+                Domain newInstance = InstanceList.findDomain((DomainInfo) evt.getNewValue());
                 if (stopped != null) {
                     throw new RequireRestartException("Must restart platform after shutdown of previous glassfish domain.", evt, current);
                 } else if (current == null && newInstance != null) {
@@ -103,7 +103,7 @@ public class Listener implements VetoableChangeListener {
     }
 
     private void startPriorSelection() {
-        ProviderInfo selected;
+        DomainInfo selected;
         if (current == null && !starting && (selected = InstanceList.getInstance().getSelectedDomain()) != null) {
             Domain start = InstanceList.findDomain(selected);
             if (start != null) {

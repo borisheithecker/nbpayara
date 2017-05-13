@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.nbpayara.core.Domain;
-import org.nbpayara.core.ProviderInfo;
+import org.nbpayara.core.DomainInfo;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -34,7 +34,7 @@ final class InstanceList implements LookupListener {
     private final static InstanceList INSTANCE = new InstanceList();
     private final Lookup.Result<Domain> result;
     private final VetoableChangeSupport propertyChangeSupport = new VetoableChangeSupport(this);
-    private final ArrayList<ProviderInfo> domains = new ArrayList<>();
+    private final ArrayList<DomainInfo> domains = new ArrayList<>();
 
     @SuppressWarnings("LeakingThisInConstructor")
     private InstanceList() {
@@ -47,18 +47,18 @@ final class InstanceList implements LookupListener {
         return INSTANCE;
     }
 
-    static Domain findDomain(ProviderInfo provider) {
+    static Domain findDomain(DomainInfo provider) {
         return INSTANCE.findDomainImpl(provider);
     }
 
     private synchronized void initImpl() {
-        ArrayList<ProviderInfo> dd = new ArrayList<>();
+        ArrayList<DomainInfo> dd = new ArrayList<>();
         Set<String> stopped = getStoppedDomains();
         List<Domain> toStop = new ArrayList<>();
         String selected = NbPreferences.forModule(getClass()).get(SELECTED_DOMAIN, null);
         result.allInstances().stream()
                 .forEach(d -> {
-                    ProviderInfo pi = d.getProviderInfo();
+                    DomainInfo pi = d.getProviderInfo();
                     dd.add(pi);
                     if (!stopped.contains(pi.getURL())
                             && !(selected != null && selected.equals(pi.getURL()))) {
@@ -73,12 +73,12 @@ final class InstanceList implements LookupListener {
                 .forEach(d -> Listener.RP.post(new StopDomain(d)));
     }
 
-    public ProviderInfo[] getDomains() {
+    public DomainInfo[] getDomains() {
         return domains.stream()
-                .toArray(ProviderInfo[]::new);
+                .toArray(DomainInfo[]::new);
     }
 
-    ProviderInfo getSelectedDomain() {
+    DomainInfo getSelectedDomain() {
         String provider = NbPreferences.forModule(getClass()).get(SELECTED_DOMAIN, null);
         if (provider != null) {
             return findProviderInfo(provider);
@@ -86,8 +86,8 @@ final class InstanceList implements LookupListener {
         return null;
     }
 
-    ProviderInfo findProviderInfo(String url) {
-        for (ProviderInfo pi : domains) {
+    DomainInfo findProviderInfo(String url) {
+        for (DomainInfo pi : domains) {
             if (pi.getURL().equals(url)) {
                 return pi;
             }
@@ -95,7 +95,7 @@ final class InstanceList implements LookupListener {
         return null;
     }
 
-    private Domain findDomainImpl(ProviderInfo pi) {
+    private Domain findDomainImpl(DomainInfo pi) {
         if (pi != null) {
             for (Domain d : result.allInstances()) {
                 if (d.getProviderInfo().getURL().equals(pi.getURL())) {
@@ -106,9 +106,9 @@ final class InstanceList implements LookupListener {
         return null;
     }
 
-    public void setSelectedDomain(final ProviderInfo domain) throws PropertyVetoException {
+    public void setSelectedDomain(final DomainInfo domain) throws PropertyVetoException {
         assert domain == null || domains.contains(domain);
-        ProviderInfo old = getSelectedDomain();
+        DomainInfo old = getSelectedDomain();
         try {
             propertyChangeSupport.fireVetoableChange(SELECTED_DOMAIN, old, domain);
         } catch (RequireRestartException rsex) {
@@ -118,7 +118,7 @@ final class InstanceList implements LookupListener {
         updateSelectedDomain(domain);
     }
 
-    private void updateSelectedDomain(final ProviderInfo domain) {
+    private void updateSelectedDomain(final DomainInfo domain) {
         if (domain != null) {
             NbPreferences.forModule(getClass()).put(SELECTED_DOMAIN, domain.getURL());
             updateStoppedDomains(domain, false);
@@ -135,7 +135,7 @@ final class InstanceList implements LookupListener {
         return Collections.EMPTY_SET;
     }
 
-    synchronized void updateStoppedDomains(final ProviderInfo domain, boolean add) {
+    synchronized void updateStoppedDomains(final DomainInfo domain, boolean add) {
         StringJoiner sj = new StringJoiner(",");
         for (String v : getStoppedDomains()) {
             if (domain.getURL().equals(v)) {

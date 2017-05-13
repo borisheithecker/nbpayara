@@ -25,7 +25,7 @@ public interface Domain {
 
     public void instanceStopped();
 
-    public ProviderInfo getProviderInfo();
+    public DomainInfo getProviderInfo();
 
     public static void ensureRunning(String providerUrl) throws IOException {
         Listener.ensureRunning(providerUrl);

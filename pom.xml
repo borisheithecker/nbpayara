@@ -15,6 +15,62 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.nbpayara.core</publicPackage>
+                        <package>org.jdesktop.swingx</package>
+                        <package>javax.ejb</package>
+                        <package>javax.ejb.embeddable</package>
+                        <package>javax.ejb.spi</package>
+                        <package>javax.enterprise.inject</package>
+                        <package>javax.enterprise.inject.spi</package>
+                        <package>javax.enterprise.util</package>
+                        <package>javax.faces</package>
+                        <package>javax.faces.application</package>
+                        <package>javax.faces.bean</package>
+                        <package>javax.faces.component</package>
+                        <package>javax.faces.component.behavior</package>
+                        <package>javax.faces.component.html</package>
+                        <package>javax.faces.component.visit</package>
+                        <package>javax.faces.context</package>
+                        <package>javax.faces.convert</package>
+                        <package>javax.faces.el</package>
+                        <package>javax.faces.event</package>
+                        <package>javax.faces.flow</package>
+                        <package>javax.faces.flow.builder</package>
+                        <package>javax.faces.lifecycle</package>
+                        <package>javax.faces.model</package>
+                        <package>javax.faces.render</package>
+                        <package>javax.faces.validator</package>
+                        <package>javax.faces.view</package>
+                        <package>javax.faces.view.facelets</package>
+                        <package>javax.faces.webapp</package>
+                        <package>javax.inject</package>
+                        <package>javax.interceptor</package>
+                        <package>javax.jms</package>
+                        <package>javax.persistence</package>
+                        <package>javax.persistence.criteria</package>
+                        <package>javax.persistence.metamodel</package>
+                        <package>javax.persistence.spi</package>
+                        <package>javax.resource</package>
+                        <package>javax.resource.cci</package>
+                        <package>javax.resource.spi</package>
+                        <package>javax.resource.spi.endpoint</package>
+                        <package>javax.resource.spi.security</package>
+                        <package>javax.resource.spi.work</package>
+                        <package>javax.security.auth.message</package>
+                        <package>javax.security.auth.message.callback</package>
+                        <package>javax.security.auth.message.config</package>
+                        <package>javax.security.auth.message.module</package>
+                        <package>javax.security.jacc</package>
+                        <package>javax.servlet</package>
+                        <package>javax.servlet.annotation</package>
+                        <package>javax.servlet.descriptor</package>
+                        <package>javax.servlet.http</package>
+                        <package>javax.servlet.jsp</package>
+                        <package>javax.servlet.jsp.el</package>
+                        <package>javax.servlet.jsp.jstl.core</package>
+                        <package>javax.servlet.jsp.jstl.fmt</package>
+                        <package>javax.servlet.jsp.jstl.sql</package>
+                        <package>javax.servlet.jsp.jstl.tlv</package>
+                        <package>javax.servlet.jsp.tagext</package>
                     </publicPackages>
                 </configuration>
             </plugin>
@@ -79,11 +135,6 @@
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-awt</artifactId>
-            <version>RELEASE81</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-ui</artifactId>
             <version>RELEASE81</version>
         </dependency>
@@ -105,6 +156,11 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-filesystems</artifactId>
+            <version>RELEASE81</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-awt</artifactId>
             <version>RELEASE81</version>
         </dependency>
     </dependencies>
