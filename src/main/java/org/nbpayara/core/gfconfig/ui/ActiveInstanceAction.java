@@ -42,7 +42,7 @@ import org.openide.util.actions.CallableSystemAction;
  *
  * UI adapted to org.netbeans.modules.project.ui.actions.ActiveConfigAction
  */
-@ActionID(id = "org.thespheres.betula.glassfish.startup.ActiveInstanceAction", category = "Project")
+@ActionID(id = "org.nbpayara.core.gfconfig.ui.ActiveInstanceAction", category = "Project")
 @ActionRegistration(displayName = "#ActiveInstanceAction.label", lazy = false)
 @ActionReferences({
     @ActionReference(path = "Toolbars/Settings", position = 11000, separatorBefore = 10000)
