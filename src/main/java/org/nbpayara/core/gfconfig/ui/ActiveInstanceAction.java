@@ -48,7 +48,7 @@ import org.openide.util.actions.CallableSystemAction;
     @ActionReference(path = "Toolbars/Settings", position = 11000, separatorBefore = 10000)
 })
 @NbBundle.Messages({"ActiveInstanceAction.name=Domain",
-    "ActiveInstanceAction.label=Mandant:",
+    "ActiveInstanceAction.label=Domain:",
     "ActiveInstanceAction.NULL=No selection"})
 public class ActiveInstanceAction extends CallableSystemAction implements VetoableChangeListener {
 
@@ -64,7 +64,7 @@ public class ActiveInstanceAction extends CallableSystemAction implements Vetoab
     }
 
     private void initProviderCombo() {
-        assert EventQueue.isDispatchThread();
+//        assert EventQueue.isDispatchThread();
         if (providerListCombo != null) {
             return;
         }

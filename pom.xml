@@ -10,12 +10,13 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <version>3.13</version>
+                <version>4.1</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
                         <publicPackage>org.nbpayara.core</publicPackage>
                         <package>org.jdesktop.swingx</package>
+                        <package>com.sun.ejb.containers</package>
                         <package>javax.ejb</package>
                         <package>javax.ejb.embeddable</package>
                         <package>javax.ejb.spi</package>
@@ -104,7 +105,7 @@
         </repository>
     </repositories>
     <dependencies>
-        <dependency>
+       <dependency>
             <groupId>fish.payara.extras</groupId>
             <artifactId>payara-embedded-all</artifactId>
             <version>4.1.153</version>
@@ -163,6 +164,11 @@
             <artifactId>org-openide-awt</artifactId>
             <version>RELEASE81</version>
         </dependency>
+<!--        <dependency>
+            <groupId>org.glassfish.main.extras</groupId>
+            <artifactId>glassfish-embedded-all</artifactId>
+            <version>4.1</version>
+        </dependency>-->
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
